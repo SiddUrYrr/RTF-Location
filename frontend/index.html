@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>RTF-Location • Live Tracking</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- MOBILE APP PWA META TAGS -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RTF-Location">
+  <meta name="theme-color" content="#090d16">
+
+  <link rel="shortcut icon" href="/favicon.ico.png" type="image/png">
+
+  <link rel="stylesheet" href="/static/css/styles.css?v=2.8">
+</head>
+<body>
+
+  <!-- OFFLINE STATUS ALERT -->
+  <div id="offlineBanner">
+    <i class="bi bi-wifi-off me-1"></i> Offline Mode: Saving GPS to Phone Memory
+  </div>
+
+  <!-- 1. AUTH SCREEN -->
+  <div id="authScreen" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="text-center mb-3">
+        <div class="d-inline-flex p-3 rounded-4 bg-danger bg-opacity-10 text-danger mb-2">
+          <i class="bi bi-geo-alt-fill fs-2"></i>
+        </div>
+        <h3 class="fw-bold mb-1">RTF-Location</h3>
+        <p class="text-muted small mb-0">Real Time Family Location</p>
+        <span class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 mt-2 small">
+          <i class="bi bi-shield-check me-1"></i> Private Family Circles
+        </span>
+      </div>
+
+      <div class="auth-pill-nav">
+        <button class="auth-pill-btn active" id="tabLoginBtn" onclick="app.showLoginForm()">Sign In</button>
+        <button class="auth-pill-btn" id="tabSignupBtn" onclick="app.showSignupForm()">Sign Up</button>
+      </div>
+
+      <!-- LOGIN -->
+      <form id="loginForm" onsubmit="app.handleLogin(event)" autocomplete="off">
+        <div class="mb-3">
+          <label class="small text-muted fw-bold">Original Email or Username</label>
+          <input type="text" id="loginUsername" class="form-control rounded-3" placeholder="e.g. name@gmail.com" autocomplete="off" value="" required>
+        </div>
+        <div class="mb-3">
+         <label class="small text-muted fw-bold">Password</label>
+         <input type="password" id="loginPassword" class="form-control rounded-3" placeholder="Enter password" autocomplete="new-password" value="" required>
+        </div>
+       <button type="submit" class="btn btn-gradient mt-2">Log In to Family Map</button>
+      </form>
+
+      <!-- SIGNUP WITH MANDATORY VERIFICATION -->
+      <form id="signupForm" class="d-none" onsubmit="app.handleSignup(event)" autocomplete="off">
+        <div class="mb-2">
+          <label class="small text-muted fw-bold">Full Name</label>
+          <input type="text" id="regFullName" class="form-control rounded-3" placeholder="e.g. Rahul Sharma" autocomplete="off" value="" required>
+        </div>
+        <div class="mb-2">
+          <label class="small text-muted fw-bold">Original Email Address</label>
+          <input type="email" id="regEmail" class="form-control rounded-3" placeholder="e.g. yourname@gmail.com" autocomplete="off" value="" required>
+          <div class="text-muted mt-1" style="font-size: 11px;">
+            <i class="bi bi-info-circle me-1"></i> A verification link will be sent. Fake emails are rejected.
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="small text-muted fw-bold">Password</label>
+          <input type="password" id="regPassword" class="form-control rounded-3" placeholder="Min 6 characters" autocomplete="new-password" value="" required minlength="6">
+        </div>
+        <button type="submit" class="btn btn-gradient mt-1">Create Verified Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. MAIN APP DASHBOARD -->
+  <div id="mainDashboard" class="d-none position-relative w-100 h-100">
+    <div id="mapCanvas"></div>
+
+    <!-- ACTIVE ROUTE HISTORY FLOATING BANNER -->
+    <div id="routeHistoryBanner" class="route-history-banner d-none">
+      <div class="d-flex align-items-center gap-2 min-w-0">
+        <i class="bi bi-pin-map-fill text-primary fs-5 flex-shrink-0"></i>
+        <div class="overflow-hidden">
+          <div class="fw-bold route-banner-title text-truncate" id="routeBannerTitle">Route History</div>
+          <div class="text-muted small text-truncate" id="routeBannerSubtitle" style="font-size: 11px;">Past 24 Hours</div>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary py-1 px-2 rounded-3 dropdown-toggle" style="font-size: 11.5px;" data-bs-toggle="dropdown">
+            Time
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow rounded-3 p-1" style="font-size: 12px; min-width: 125px;">
+            <li><a class="dropdown-item py-1" href="javascript:void(0)" onclick="app.reloadRouteHistory(4)">Last 4 Hours</a></li>
+            <li><a class="dropdown-item py-1" href="javascript:void(0)" onclick="app.reloadRouteHistory(12)">Last 12 Hours</a></li>
+            <li><a class="dropdown-item py-1" href="javascript:void(0)" onclick="app.reloadRouteHistory(24)">Last 24 Hours</a></li>
+            <li><a class="dropdown-item py-1" href="javascript:void(0)" onclick="app.reloadRouteHistory(48)">Last 48 Hours</a></li>
+          </ul>
+        </div>
+        <button class="btn btn-sm btn-danger py-1 px-2 rounded-3" style="font-size: 11.5px;" onclick="app.clearRouteHistory()" title="Close Route">
+          <i class="bi bi-x-lg me-1"></i>Close
+        </button>
+      </div>
+    </div>
+
+    <!-- FLOATING ZOOM & RECENTER CONTROLS -->
+    <div class="map-floating-controls">
+      <button class="map-control-btn" onclick="mapManager.zoomIn()" title="Zoom In">
+        <i class="bi bi-plus-lg"></i>
+      </button>
+      <button class="map-control-btn" onclick="mapManager.zoomOut()" title="Zoom Out">
+        <i class="bi bi-dash-lg"></i>
+      </button>
+      <button class="map-control-btn" onclick="mapManager.recenterOnMe()" title="Recenter Location">
+        <i class="bi bi-crosshair"></i>
+      </button>
+    </div>
+
+    <!-- Top Floating Header -->
+    <header class="glass-nav d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
+        <div class="brand-icon-box">
+          <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+        </div>
+        <span class="fw-bold brand-name">RTF-Location</span>
+        <span id="sharingStatusText" class="badge rounded-pill bg-success bg-opacity-20 text-success border border-success border-opacity-25 brand-status-badge ms-1">
+          <span class="status-pulse-dot"></span>Live
+        </span>
+      </div>
+
+      <!-- 1-CLICK INSTANT GREEN STOP-SOS BUTTON -->
+      <div id="navSafeBtnContainer" class="d-none mx-1">
+        <button class="btn btn-sm btn-success fw-bold rounded-pill px-2 px-sm-3 shadow animate-pulse d-flex align-items-center gap-1" onclick="locationTracker.resolveSOS()">
+          <i class="bi bi-shield-check"></i>
+          <span>SAFE</span>
+        </button>
+      </div>
+
+      <div class="d-flex align-items-center gap-1 gap-sm-2">
+        <!-- Notification Bell Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-sm btn-nav-icon rounded-3 position-relative" id="notifBellBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 10px;">0</span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end shadow-lg rounded-4 p-0 overflow-hidden notif-dropdown-menu">
+            <div class="p-3 bg-body-tertiary border-bottom d-flex justify-content-between align-items-center">
+              <span class="fw-bold small"><i class="bi bi-bell-fill text-primary me-2"></i>Notifications</span>
+              <span class="badge bg-primary rounded-pill small" id="notifCountText">0 new</span>
+            </div>
+            <div id="notifListContainer" class="p-2 overflow-auto" style="max-height: 280px;">
+              <div class="text-center text-muted small py-3">No notifications yet</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="btn btn-sm btn-nav-icon rounded-3" id="themeToggleBtn" onclick="app.toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+          <i class="bi bi-moon-stars"></i>
+        </button>
+
+        <!-- User Dropdown & Logout -->
+        <div class="dropdown">
+          <button class="btn btn-sm btn-nav-user rounded-3 dropdown-toggle d-flex align-items-center gap-1 gap-sm-2" data-bs-toggle="dropdown" aria-label="User Menu">
+            <img id="navUserAvatar" src="" class="rounded-circle d-none user-nav-avatar" alt="Avatar">
+            <div id="navDefaultAvatarIcon" class="user-nav-avatar-icon">
+              <i class="bi bi-person-fill"></i>
+            </div>
+            <span id="navUserName" class="nav-user-text">User</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-4 p-2 user-dropdown-menu">
+            <li><a class="dropdown-item fw-bold py-2 rounded-3" href="/profile"><i class="bi bi-person-badge-fill me-2 text-primary"></i>Profile & Account Hub</a></li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li><a class="dropdown-item text-danger fw-bold py-2 rounded-3" href="javascript:void(0)" onclick="app.logout()"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar / Phone Bottom Sheet -->
+    <aside class="floating-sidebar collapsed" id="mainSidebar">
+      <!-- Mobile Drag & Summary Top Bar -->
+      <div class="drag-handle-zone" id="sidebarDragZone" onclick="app.toggleMobileSidebar()">
+        <div class="drag-handle" id="sidebarDragHandle" title="Tap to expand/minimize"></div>
+        <div class="sheet-summary-bar d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-people-fill text-primary"></i>
+            <span class="fw-bold sheet-title">Family Circle</span>
+            <span id="sheetActiveCountBadge" class="badge rounded-pill bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25" style="font-size: 11px;">0 Active</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small d-none d-md-inline" style="font-size: 11.5px;">Live Sharing</span>
+            <div class="form-check form-switch mb-0" onclick="event.stopPropagation()">
+              <input class="form-check-input" type="checkbox" role="switch" id="masterSharingSwitch" checked onchange="app.handleSharingSwitch(this.checked)">
+            </div>
+            <i id="sheetChevronIcon" class="bi bi-chevron-up text-muted ms-1 fs-6"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-pills nav-fill p-2 border-bottom border-secondary border-opacity-25 small fw-bold">
+        <li class="nav-item">
+          <button class="nav-link active py-2 rounded-3" data-bs-toggle="tab" data-bs-target="#tabFamily"><i class="bi bi-people me-1"></i>Family</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link py-2 rounded-3" data-bs-toggle="tab" data-bs-target="#tabGroups"><i class="bi bi-diagram-3 me-1"></i>Circles</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link py-2 rounded-3" data-bs-toggle="tab" data-bs-target="#tabRequests">
+            <i class="bi bi-person-plus me-1"></i>Requests
+            <span id="pendingRequestsCountBadge" class="badge bg-danger rounded-pill ms-1 d-none" style="font-size: 9px;">0</span>
+          </button>
+        </li>
+      </ul>
+
+      <!-- Feed List -->
+      <div class="tab-content flex-grow-1 overflow-auto p-3">
+        <div class="tab-pane fade show active" id="tabFamily">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 11px;">Nearby Members</span>
+            <button class="btn btn-outline-primary btn-sm py-1 px-2 rounded-3" onclick="app.openAddFriendModal()"><i class="bi bi-plus-lg me-1"></i>Add</button>
+          </div>
+          <div id="familyList">
+            <div class="text-center text-muted small py-3">No family members yet.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabGroups">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 11px;">Your Circles</span>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary py-1" onclick="app.openCreateGroupModal()">Create</button>
+              <button class="btn btn-outline-secondary py-1" onclick="app.openJoinGroupModal()">Join</button>
+            </div>
+          </div>
+          <div id="groupsList">
+            <div class="text-center text-muted small py-3">No circles joined.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabRequests">
+          <span class="small fw-bold text-muted text-uppercase mb-2 d-block" style="letter-spacing: 0.5px; font-size: 11px;">Pending Requests</span>
+          <div id="requestsList">
+            <div class="text-center text-muted small py-3">No requests.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-2 px-3 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center small text-muted">
+        <span id="gpsAccuracyLabel"><i class="bi bi-broadcast text-success me-1"></i> GPS: Ready</span>
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-sm btn-link text-decoration-none p-0 fw-bold" onclick="app.viewLocationHistory(app.currentUser?.id, 'Your')">
+            <i class="bi bi-clock-history me-1"></i>My Route
+          </button>
+          <button class="btn btn-sm btn-link text-decoration-none p-0 fw-bold" onclick="mapManager.recenterOnMe()">
+            <i class="bi bi-crosshair me-1"></i>Recenter
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 1-CLICK INSTANT RED SOS BUTTON (NO POPUP) -->
+    <button class="sos-floating-btn" id="sosFloatingBtn" onclick="locationTracker.triggerSOSNow()" title="1-Click Emergency SOS" aria-label="Emergency SOS">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span class="sos-btn-label">SOS</span>
+    </button>
+  </div>
+
+  <!-- PROFILE & MEDICAL DETAILS MODAL -->
+  <div class="modal fade" id="profileModal" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-sheet-handle"></div>
+        <div class="modal-header pt-0">
+          <h5 class="modal-title fw-bold"><i class="bi bi-person-badge me-2 text-primary"></i>Profile & Medical Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form onsubmit="app.handleProfileUpdate(event)">
+          <div class="modal-body p-3 p-sm-4">
+            
+            <!-- Avatar Upload Area -->
+            <div class="text-center mb-4">
+              <div class="position-relative d-inline-block" style="width: 88px; height: 88px;">
+                <img id="profileModalAvatarPreview" src="" class="rounded-circle border border-3 border-primary shadow-sm d-none" style="width: 88px; height: 88px; object-fit: cover;">
+                <div id="profileModalAvatarPlaceholder" class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold fs-2 border border-3 border-primary border-opacity-25 shadow-sm" style="width: 88px; height: 88px;">
+                  U
+                </div>
+                <label for="avatarFileInput" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow" style="cursor: pointer; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; z-index: 2;" title="Upload Photo">
+                  <i class="bi bi-camera-fill" style="font-size: 13px;"></i>
+                </label>
+                <input type="file" id="avatarFileInput" accept="image/*" class="d-none" onchange="app.handleAvatarFileSelect(event)">
+              </div>
+              <div class="small text-muted mt-2 d-flex align-items-center justify-content-center gap-2">
+                <span>Click camera icon to change photo</span>
+                <button type="button" id="btnRemoveAvatarPhoto" class="btn btn-sm btn-link text-danger p-0 d-none text-decoration-none" onclick="app.removeAvatarPhoto()" style="font-size: 12px;">
+                  <i class="bi bi-trash3 me-1"></i>Remove
+                </button>
+              </div>
+              <div id="cloudinaryStatusBadge" class="mt-2"></div>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-12 col-sm-6">
+                <label class="form-label small fw-bold text-muted">Full Name</label>
+                <input type="text" id="profFullName" class="form-control" required>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label small fw-bold text-muted">Phone Number</label>
+                <input type="tel" id="profPhone" class="form-control" placeholder="+91 9876543210">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">Current Status / Bio</label>
+              <input type="text" id="profBio" class="form-control" placeholder="e.g. At Work, Safe at Home, Traveling...">
+            </div>
+
+            <hr class="border-secondary border-opacity-25 my-3">
+            <h6 class="fw-bold small text-danger"><i class="bi bi-heart-pulse-fill me-1"></i> Emergency & Medical Info</h6>
+
+            <div class="row g-2 mb-3">
+              <div class="col-12 col-sm-5">
+                <label class="form-label small fw-bold text-muted">Blood Group</label>
+                <select id="profBloodGroup" class="form-select">
+                  <option value="">Unknown</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                </select>
+              </div>
+              <div class="col-12 col-sm-7">
+                <label class="form-label small fw-bold text-muted">Home Address</label>
+                <input type="text" id="profAddress" class="form-control" placeholder="City, Area, Flat No">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">Medical Notes (Allergies / Medications)</label>
+              <textarea id="profMedicalNotes" class="form-control" rows="2" placeholder="Important medical notes for emergency"></textarea>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" id="btnSaveProfile" class="btn btn-gradient rounded-3 px-4">Save Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="addFriendModal" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0">
+        <div class="modal-sheet-handle"></div>
+        <div class="modal-header pt-0">
+          <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2 text-primary"></i>Add Family Member</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form onsubmit="app.handleSendFriendRequest(event)">
+          <div class="modal-body p-3 p-sm-4">
+            <label class="form-label small text-muted fw-bold">Username or Email</label>
+            <input type="text" id="targetFriendIdentifier" class="form-control" required placeholder="e.g. rahul@gmail.com or username">
+            <div class="form-text small text-muted mt-2">
+              Enter the exact username or registered email of your family member.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" id="btnSendFriendRequest" class="btn btn-gradient rounded-3 px-3">Send Request</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="createGroupModal" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0">
+        <div class="modal-sheet-handle"></div>
+        <div class="modal-header pt-0">
+          <h5 class="modal-title fw-bold"><i class="bi bi-diagram-3 me-2 text-primary"></i>Create Family Circle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form onsubmit="app.handleCreateGroup(event)">
+          <div class="modal-body p-3 p-sm-4">
+            <label class="form-label small text-muted fw-bold">Circle Name</label>
+            <input type="text" id="groupNameInput" class="form-control" required minlength="2" placeholder="e.g. Sharma Family">
+            <div class="form-text small text-muted mt-2">
+              A private circle for your family or friends with a unique invite code.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" id="btnCreateGroup" class="btn btn-gradient rounded-3 px-3">Create Circle</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="joinGroupModal" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0">
+        <div class="modal-sheet-handle"></div>
+        <div class="modal-header pt-0">
+          <h5 class="modal-title fw-bold"><i class="bi bi-box-arrow-in-right me-2 text-primary"></i>Join Family Circle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form onsubmit="app.handleJoinGroup(event)">
+          <div class="modal-body p-3 p-sm-4">
+            <label class="form-label small text-muted fw-bold">Invite Code</label>
+            <input type="text" id="joinGroupCodeInput" class="form-control text-uppercase text-center fs-4 fw-bold" required maxlength="12" placeholder="e.g. 7A9B3F10">
+            <div class="form-text small text-muted mt-2">
+              Enter the invite code shared by your family admin.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" id="btnJoinGroup" class="btn btn-gradient rounded-3 px-3">Join Circle</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="circleMembersModal" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-sheet-handle"></div>
+        <div class="modal-header pt-0 pb-2">
+          <div class="min-w-0">
+            <h5 class="modal-title fw-bold text-truncate" id="circleMembersModalTitle">
+              <i class="bi bi-diagram-3 me-2 text-primary"></i>Circle Members
+            </h5>
+            <div class="text-muted small" id="circleMembersModalSubtitle" style="font-size: 11.5px;">Members of this circle</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3 p-sm-4">
+          <!-- Invite Code Banner -->
+          <div class="p-3 mb-3 rounded-3 bg-body-tertiary border d-flex align-items-center justify-content-between">
+            <div class="min-w-0">
+              <span class="small text-muted d-block fw-bold text-uppercase" style="font-size: 10.5px; letter-spacing: 0.5px;">Invite Code</span>
+              <code class="fs-5 fw-bold text-primary" id="circleMembersInviteCode">--------</code>
+            </div>
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" id="circleMembersCopyCodeBtn" onclick="app.copyCurrentCircleInviteCode(this)">
+              <i class="bi bi-clipboard me-1"></i>Copy
+            </button>
+          </div>
+
+          <!-- Members Section -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 11px;">Active Members</span>
+            <span class="badge bg-primary bg-opacity-15 text-primary rounded-pill" id="circleMembersCountBadge">0</span>
+          </div>
+
+          <!-- Dynamic Members List Container -->
+          <div id="circleMembersListContainer" class="d-flex flex-column gap-2">
+            <div class="text-center text-muted small py-4">
+              <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+              <div>Loading members...</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-secondary rounded-3 px-3" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="app-toast-container" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/js/utils.js?v=2.9"></script>
+  <script src="/static/js/map.js?v=2.9"></script>
+  <script src="/static/js/location.js?v=2.9"></script>
+  <script src="/static/js/app.js?v=2.9"></script>
+</body>
+</html>

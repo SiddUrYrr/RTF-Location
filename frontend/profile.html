@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Profile & Account Settings • RTF-Location</title>
+  <meta name="description" content="Manage your RTF-Location profile, avatar, medical emergency information, circles, and GPS privacy controls.">
+
+  <!-- BOOTSTRAP 5 & ICONS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- FONTS & STYLES -->
+  <link rel="shortcut icon" href="/favicon.ico.png" type="image/png">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <script src="/static/js/utils.js?v=2.9"></script>
+</head>
+<body class="profile-page-root">
+
+  <!-- TOP STICKY NAVBAR -->
+  <header class="profile-top-navbar">
+    <div class="profile-top-nav-inner">
+      <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
+        <!-- Back Button -->
+        <a href="/map" class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1 px-2 px-sm-3 py-1 fw-semibold text-nowrap shadow-sm" onclick="if(window.history.length > 1){ window.history.back(); return false; }" title="Back to Map" aria-label="Back to Map">
+          <i class="bi bi-arrow-left"></i>
+          <span class="d-none d-sm-inline">Back</span>
+        </a>
+
+        <a href="/map" class="d-flex align-items-center gap-1 gap-sm-2 text-decoration-none text-reset">
+          <div class="brand-icon-box">
+            <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+          </div>
+          <span class="fw-bold fs-5 brand-name text-nowrap">RTF-Location</span>
+        </a>
+        <span class="badge rounded-pill bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25 ms-1 d-none d-md-inline">
+          Account Hub
+        </span>
+      </div>
+
+      <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
+        <a href="/map" class="btn btn-sm btn-outline-primary rounded-3 px-2 px-sm-3 py-1 fw-bold d-flex align-items-center gap-1 gap-sm-2 text-nowrap" style="white-space: nowrap;" title="Live Radar Map">
+          <i class="bi bi-map-fill"></i>
+          <span class="d-none d-sm-inline">Live Radar Map</span>
+          <span class="d-inline d-sm-none">Map</span>
+        </a>
+
+        <!-- Theme Toggle -->
+        <button class="btn btn-sm btn-nav-icon rounded-3 flex-shrink-0" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+          <i class="bi bi-moon-stars" id="themeIcon"></i>
+        </button>
+
+        <!-- Logout -->
+        <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1 fw-semibold d-flex align-items-center gap-1 text-nowrap flex-shrink-0" onclick="handleLogout()" title="Sign Out">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="d-none d-sm-inline">Sign Out</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN PROFILE CONTAINER -->
+  <main class="profile-container">
+
+    <!-- HERO HEADER CARD -->
+    <section class="profile-hero-card">
+      <div class="profile-hero-body">
+        
+        <!-- Avatar with Upload Overlay -->
+        <div class="profile-avatar-container">
+          <img id="userAvatarImg" src="" class="profile-avatar-img d-none" alt="Profile Avatar">
+          <div id="userAvatarFallback" class="profile-avatar-fallback">U</div>
+          
+          <label for="profilePhotoInput" class="profile-avatar-upload-badge" title="Change Avatar Photo">
+            <i class="bi bi-camera-fill"></i>
+          </label>
+          <input type="file" id="profilePhotoInput" accept="image/*" class="d-none" onchange="handleAvatarSelected(event)">
+        </div>
+
+        <!-- User Information & Badges -->
+        <div class="profile-user-details">
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <h2 class="profile-user-name mb-0" id="userDisplayName">Loading...</h2>
+            <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 rounded-pill px-2 py-1 small" id="sharingStatusBadge">
+              <span class="status-pulse-dot" style="width: 6px; height: 6px;"></span> Sharing Active
+            </span>
+            <span id="cloudinaryBadgeContainer"></span>
+          </div>
+
+          <div class="profile-user-meta">
+            <span id="userUsernameHandle"><i class="bi bi-at text-primary"></i>username</span>
+            <span>&bull;</span>
+            <span id="userEmailText"><i class="bi bi-envelope text-muted me-1"></i>email</span>
+            <span id="userPhoneSeparator" class="d-none">&bull;</span>
+            <span id="userPhoneText" class="d-none"><i class="bi bi-telephone text-muted me-1"></i>phone</span>
+          </div>
+        </div>
+
+        <!-- Quick Stats Metrics -->
+        <div class="profile-quick-stats">
+          <div class="profile-stat-box">
+            <div class="profile-stat-val text-primary" id="statCirclesCount">0</div>
+            <div class="profile-stat-lbl">Circles</div>
+          </div>
+          <div class="profile-stat-box">
+            <div class="profile-stat-val text-success" id="statFamilyCount">0</div>
+            <div class="profile-stat-lbl">Members</div>
+          </div>
+          <div class="profile-stat-box">
+            <div class="profile-stat-val text-danger" id="statBloodGroup">-</div>
+            <div class="profile-stat-lbl">Blood</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="profile-tabs-nav" id="profileTabsNav">
+      <button class="profile-tab-btn active" onclick="switchTab('tabOverview', this)">
+        <i class="bi bi-person-circle"></i>
+        <span>Personal Info</span>
+      </button>
+      <button class="profile-tab-btn" onclick="switchTab('tabMedical', this)">
+        <i class="bi bi-heart-pulse-fill text-danger"></i>
+        <span>Medical & Emergency</span>
+      </button>
+      <button class="profile-tab-btn" onclick="switchTab('tabPrivacy', this)">
+        <i class="bi bi-shield-lock-fill text-success"></i>
+        <span>GPS & Privacy</span>
+      </button>
+      <button class="profile-tab-btn" onclick="switchTab('tabCircles', this)">
+        <i class="bi bi-diagram-3-fill text-info"></i>
+        <span>Circles & Family</span>
+      </button>
+      <button class="profile-tab-btn" onclick="switchTab('tabSecurity', this)">
+        <i class="bi bi-key-fill text-warning"></i>
+        <span>Security & Password</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: PERSONAL INFORMATION -->
+    <div id="tabOverview" class="tab-content-panel">
+      <div class="profile-content-card">
+        <h4 class="profile-card-title">
+          <i class="bi bi-person-lines-fill text-primary"></i>
+          <span>Personal Details</span>
+        </h4>
+        <p class="profile-card-subtitle">Manage your basic profile information displayed to circle members.</p>
+
+        <form id="formPersonalInfo" onsubmit="savePersonalInfo(event)">
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-muted" for="inputFullName">Full Name</label>
+              <div class="input-group-modern mb-0">
+                <i class="bi bi-person input-icon-left"></i>
+                <input type="text" id="inputFullName" class="form-control-modern" placeholder="e.g. Rahul Sharma" required>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-muted" for="inputUsername">Username (Unique handle)</label>
+              <div class="input-group-modern mb-0">
+                <i class="bi bi-at input-icon-left"></i>
+                <input type="text" id="inputUsername" class="form-control-modern" disabled readonly style="opacity: 0.7;">
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-muted" for="inputEmail">Email Address (Verified)</label>
+              <div class="input-group-modern mb-0">
+                <i class="bi bi-envelope-check input-icon-left"></i>
+                <input type="email" id="inputEmail" class="form-control-modern" disabled readonly style="opacity: 0.7;">
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-muted" for="inputPhone">Phone Number (Emergency SMS & Calls)</label>
+              <div class="input-group-modern mb-0">
+                <i class="bi bi-telephone input-icon-left"></i>
+                <input type="tel" id="inputPhone" class="form-control-modern" placeholder="+91 9876543210">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted" for="inputBio">Current Status / Bio</label>
+            <div class="input-group-modern mb-0">
+              <i class="bi bi-chat-quote input-icon-left"></i>
+              <input type="text" id="inputBio" class="form-control-modern" placeholder="e.g. Working at Office • Safe at Home • Traveling">
+            </div>
+            <div class="text-muted small mt-1" style="font-size: 11.5px;">
+              This status is visible next to your avatar marker on the live map.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted" for="inputHomeAddress">Home Address / Primary Safe Zone</label>
+            <div class="input-group-modern mb-0">
+              <i class="bi bi-house-door input-icon-left"></i>
+              <input type="text" id="inputHomeAddress" class="form-control-modern" placeholder="e.g. Flat 402, Green Valley Apartments, Mumbai">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" id="btnSavePersonal" class="btn btn-gradient px-4" style="width: auto; min-width: 170px;">
+              <i class="bi bi-check2-circle"></i>
+              <span>Save Changes</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB 2: MEDICAL & EMERGENCY SAFETY -->
+    <div id="tabMedical" class="tab-content-panel d-none">
+      <div class="profile-content-card">
+        <h4 class="profile-card-title text-danger">
+          <i class="bi bi-heart-pulse-fill"></i>
+          <span>Medical Profile & Emergency Health Notes</span>
+        </h4>
+        <p class="profile-card-subtitle">
+          In case of an Emergency SOS trigger, this vital medical information is immediately displayed to your family circle and emergency contacts.
+        </p>
+
+        <form id="formMedicalInfo" onsubmit="saveMedicalInfo(event)">
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted d-block mb-2">Blood Group</label>
+            <div class="blood-selector-grid" id="bloodTypeGrid">
+              <div class="blood-chip" data-blood="A+" onclick="selectBloodChip('A+')">A+</div>
+              <div class="blood-chip" data-blood="A-" onclick="selectBloodChip('A-')">A-</div>
+              <div class="blood-chip" data-blood="B+" onclick="selectBloodChip('B+')">B+</div>
+              <div class="blood-chip" data-blood="B-" onclick="selectBloodChip('B-')">B-</div>
+              <div class="blood-chip" data-blood="O+" onclick="selectBloodChip('O+')">O+</div>
+              <div class="blood-chip" data-blood="O-" onclick="selectBloodChip('O-')">O-</div>
+              <div class="blood-chip" data-blood="AB+" onclick="selectBloodChip('AB+')">AB+</div>
+              <div class="blood-chip" data-blood="AB-" onclick="selectBloodChip('AB-')">AB-</div>
+            </div>
+            <input type="hidden" id="selectedBloodGroup" value="">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted" for="inputMedicalNotes">
+              Medical Notes (Allergies, Chronic Conditions, Regular Medications)
+            </label>
+            <textarea id="inputMedicalNotes" class="form-control" rows="4" placeholder="e.g. Penicillin allergy; Type-1 Diabetic; Carry Asthma inhaler in backpack..."></textarea>
+            <div class="text-muted small mt-1" style="font-size: 11.5px;">
+              <i class="bi bi-shield-fill-check text-success me-1"></i> Stored securely and only visible to confirmed members of your circles.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" id="btnSaveMedical" class="btn btn-gradient px-4" style="width: auto; min-width: 170px;">
+              <i class="bi bi-save-fill"></i>
+              <span>Save Medical Info</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Emergency Contacts for SOS SMS escalation -->
+      <div class="profile-content-card mt-4">
+        <h4 class="profile-card-title text-danger">
+          <i class="bi bi-telephone-fill"></i>
+          <span>Emergency Contacts</span>
+        </h4>
+        <p class="profile-card-subtitle">
+          When you trigger an SOS, these people receive a text message with your live location in addition to the in-app alert sent to your circles.
+        </p>
+
+        <form id="formEmergencyContact" onsubmit="addEmergencyContact(event)">
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label class="form-label small fw-bold text-muted" for="contactName">Full Name</label>
+              <input type="text" id="contactName" class="form-control" maxlength="100" placeholder="e.g. Priya Sharma" required>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small fw-bold text-muted" for="contactPhone">Phone (with country code)</label>
+              <input type="tel" id="contactPhone" class="form-control" maxlength="20" placeholder="e.g. +919876543210" required>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small fw-bold text-muted" for="contactRelationship">Relationship</label>
+              <input type="text" id="contactRelationship" class="form-control" maxlength="50" placeholder="e.g. Spouse, Doctor" required>
+            </div>
+          </div>
+          <div class="form-check form-switch mt-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="contactNotifyInApp" checked>
+            <label class="form-check-label small text-muted" for="contactNotifyInApp">Also notify in the app</label>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button type="submit" id="btnAddEmergencyContact" class="btn btn-gradient px-4" style="width: auto;">
+              <i class="bi bi-person-plus-fill"></i>
+              <span>Add Contact</span>
+            </button>
+          </div>
+        </form>
+
+        <div id="emergencyContactsList" class="mt-3">
+          <div class="text-muted small py-2"><span class="spinner-border spinner-border-sm me-2"></span>Loading contacts...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: GPS & PRIVACY -->
+    <div id="tabPrivacy" class="tab-content-panel d-none">
+      <div class="profile-content-card">
+        <h4 class="profile-card-title text-success">
+          <i class="bi bi-broadcast-pin"></i>
+          <span>Live GPS Sharing & Privacy Mode</span>
+        </h4>
+        <p class="profile-card-subtitle">Control exactly when, how, and with what precision your live GPS location is broadcast.</p>
+
+        <!-- Master Toggle Card -->
+        <div class="p-3 rounded-4 mb-4" style="background: var(--card-bg); border: 1px solid var(--card-border);">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="me-3">
+              <h6 class="fw-bold mb-1">Master Live Location Broadcast</h6>
+              <p class="text-muted small mb-0">When disabled, your marker disappears from family circles (SOS signals bypass this toggle).</p>
+            </div>
+            <div class="form-check form-switch fs-4 mb-0">
+              <input class="form-check-input" type="checkbox" role="switch" id="privacyMasterSwitch" onchange="toggleMasterSharing(this.checked)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Precision Mode -->
+        <div class="mb-4">
+          <label class="form-label small fw-bold text-muted mb-2">Location Accuracy Precision</label>
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <div class="p-3 rounded-3 border d-flex align-items-start gap-3 cursor-pointer" id="precisionExactCard" onclick="selectPrecisionMode('exact')">
+                <input class="form-check-input mt-1" type="radio" name="privacyModeRadio" id="radioExact" value="exact" checked>
+                <div>
+                  <div class="fw-bold small text-main"><i class="bi bi-crosshair text-primary me-1"></i> Exact GPS Precision</div>
+                  <div class="text-muted small" style="font-size: 11.5px;">Accurate down to 3-5 meters. Best for family safety and real-time navigation.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="p-3 rounded-3 border d-flex align-items-start gap-3 cursor-pointer" id="precisionBlurredCard" onclick="selectPrecisionMode('blurred')">
+                <input class="form-check-input mt-1" type="radio" name="privacyModeRadio" id="radioBlurred" value="blurred">
+                <div>
+                  <div class="fw-bold small text-main"><i class="bi bi-geo-alt text-warning me-1"></i> Approximate / Blurred Mode</div>
+                  <div class="text-muted small" style="font-size: 11.5px;">Slightly offsets GPS coordinates (~300m) to indicate general neighborhood only.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-gradient px-4" style="width: auto;" onclick="savePrivacySettings()">
+            <i class="bi bi-shield-check"></i>
+            <span>Apply Privacy Settings</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CIRCLES & FAMILY -->
+    <div id="tabCircles" class="tab-content-panel d-none">
+      <div class="profile-content-card">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+          <div>
+            <h4 class="profile-card-title text-info mb-1">
+              <i class="bi bi-diagram-3-fill"></i>
+              <span>Your Family Circles</span>
+            </h4>
+            <p class="profile-card-subtitle mb-0">Circles allow group-level live tracking, check-ins, and shared safe zones.</p>
+          </div>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" onclick="openCreateCircleModal()"><i class="bi bi-plus-lg me-1"></i>Create Circle</button>
+            <button class="btn btn-outline-secondary" onclick="openJoinCircleModal()"><i class="bi bi-box-arrow-in-right me-1"></i>Join Circle</button>
+          </div>
+        </div>
+
+        <div id="circlesListContainer" class="row g-3">
+          <div class="col-12 text-center text-muted py-4">
+            <span class="spinner-border spinner-border-sm me-2"></span>Loading circles...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SECURITY & PASSWORD -->
+    <div id="tabSecurity" class="tab-content-panel d-none">
+      <div class="profile-content-card mb-4">
+        <h4 class="profile-card-title text-warning">
+          <i class="bi bi-key-fill"></i>
+          <span>Change Account Password</span>
+        </h4>
+        <p class="profile-card-subtitle">Ensure your account is protected with a robust, confidential password.</p>
+
+        <form id="formChangePassword" onsubmit="handleChangePassword(event)" style="max-width: 500px;">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted" for="currentPassword">Current Password</label>
+            <div class="input-group-modern mb-0">
+              <i class="bi bi-lock input-icon-left"></i>
+              <input type="password" id="currentPassword" class="form-control-modern has-action-right" required autocomplete="current-password">
+              <button type="button" class="input-action-right" onclick="togglePasswordVisibility('currentPassword', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted" for="newPassword">New Password (Min 6 characters)</label>
+            <div class="input-group-modern mb-0">
+              <i class="bi bi-shield-lock input-icon-left"></i>
+              <input type="password" id="newPassword" class="form-control-modern has-action-right" required minlength="6" autocomplete="new-password">
+              <button type="button" class="input-action-right" onclick="togglePasswordVisibility('newPassword', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted" for="confirmPassword">Confirm New Password</label>
+            <div class="input-group-modern mb-0">
+              <i class="bi bi-check2-circle input-icon-left"></i>
+              <input type="password" id="confirmPassword" class="form-control-modern has-action-right" required minlength="6" autocomplete="new-password">
+              <button type="button" class="input-action-right" onclick="togglePasswordVisibility('confirmPassword', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="btnChangePasswordSubmit" class="btn btn-gradient px-4" style="width: auto;">
+            <i class="bi bi-shield-check"></i>
+            <span>Update Password</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Cloudinary CDN Diagnostic Card -->
+      <div class="profile-content-card">
+        <h4 class="profile-card-title text-primary">
+          <i class="bi bi-cloud-check-fill"></i>
+          <span>Media Storage & Cloudinary CDN Diagnostics</span>
+        </h4>
+        <p class="profile-card-subtitle">Live health check of avatar uploads and Content Delivery Network status.</p>
+
+        <div id="cloudinaryDiagBox" class="p-3 rounded-3" style="background: var(--card-bg); border: 1px solid var(--card-border);">
+          <span class="spinner-border spinner-border-sm me-2"></span> Checking Cloudinary connection...
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- CREATE CIRCLE MODAL -->
+  <div class="modal fade" id="modalCreateCircle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle text-primary me-2"></i>Create Family Circle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form onsubmit="submitCreateCircle(event)">
+          <div class="modal-body">
+            <label class="form-label small fw-bold text-muted">Circle Name</label>
+            <input type="text" id="inputCircleName" class="form-control" placeholder="e.g. Johnson Family" required>
+            <div class="text-muted small mt-2">A unique 8-character invite code will be generated automatically.</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-gradient rounded-3 px-4">Create Circle</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOIN CIRCLE MODAL -->
+  <div class="modal fade" id="modalJoinCircle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold"><i class="bi bi-box-arrow-in-right text-primary me-2"></i>Join Family Circle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form onsubmit="submitJoinCircle(event)">
+          <div class="modal-body">
+            <label class="form-label small fw-bold text-muted">Invite Code</label>
+            <input type="text" id="inputJoinCode" class="form-control text-uppercase text-center fs-3 fw-bold" placeholder="e.g. 7A9B3F10" required maxlength="12">
+            <div class="text-muted small mt-2">Ask the Circle owner or member for the invite code.</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-gradient rounded-3 px-4">Join Circle</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="app-toast-container" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let currentUser = null;
+    let token = localStorage.getItem('token');
+
+    // Theme Management
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-bs-theme', theme);
+      localStorage.setItem('theme', theme);
+      const icon = document.getElementById('themeIcon');
+      if (icon) {
+        icon.className = theme === 'dark' ? 'bi bi-moon-stars' : 'bi bi-sun';
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-bs-theme') || 'dark';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    applyTheme(localStorage.getItem('theme') || 'dark');
+
+    // Authentication Guard
+    if (!token) {
+      window.location.href = '/login';
+    }
+
+    function authFetch(url, options = {}) {
+      options.headers = options.headers || {};
+      options.headers['Authorization'] = `Bearer ${token}`;
+      return fetch(url, options);
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `app-toast toast-${type}`;
+      const iconClass = type === 'success' ? 'bi-check-circle-fill text-success' : (type === 'danger' ? 'bi-exclamation-triangle-fill text-danger' : 'bi-info-circle-fill text-primary');
+      toast.innerHTML = `<i class="bi ${iconClass} fs-5"></i><span>${esc(msg)}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(15px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function togglePasswordVisibility(id, btn) {
+      const input = document.getElementById(id);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+      }
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content-panel').forEach(p => p.classList.add('d-none'));
+      document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.remove('d-none');
+      if (btn) btn.classList.add('active');
+    }
+
+    function selectBloodChip(bg) {
+      document.querySelectorAll('.blood-chip').forEach(c => c.classList.remove('selected'));
+      const chip = document.querySelector(`.blood-chip[data-blood="${bg}"]`);
+      if (chip) chip.classList.add('selected');
+      document.getElementById('selectedBloodGroup').value = bg;
+    }
+
+    function selectPrecisionMode(mode) {
+      document.getElementById('radioExact').checked = (mode === 'exact');
+      document.getElementById('radioBlurred').checked = (mode === 'blurred');
+    }
+
+    // Initialize Profile
+    async function loadUserProfile() {
+      try {
+        const res = await authFetch('/api/auth/me');
+        if (!res.ok) {
+          handleLogout();
+          return;
+        }
+        currentUser = await res.json();
+        renderUserData();
+        loadCircles();
+        loadEmergencyContacts();
+        loadCloudinaryStatus();
+      } catch (err) {
+        showToast('Error loading profile: ' + err.message, 'danger');
+      }
+    }
+
+    function renderUserData() {
+      if (!currentUser) return;
+
+      // Header info
+      document.getElementById('userDisplayName').innerText = currentUser.full_name || currentUser.username;
+      document.getElementById('userUsernameHandle').innerHTML = `<i class="bi bi-at text-primary"></i>${esc(currentUser.username)}`;
+      document.getElementById('userEmailText').innerHTML = `<i class="bi bi-envelope text-muted me-1"></i>${esc(currentUser.email)}`;
+      
+      if (currentUser.phone) {
+        document.getElementById('userPhoneSeparator').classList.remove('d-none');
+        const phoneEl = document.getElementById('userPhoneText');
+        phoneEl.classList.remove('d-none');
+        phoneEl.innerHTML = `<i class="bi bi-telephone text-muted me-1"></i>${esc(currentUser.phone)}`;
+      }
+
+      // Avatar
+      const img = document.getElementById('userAvatarImg');
+      const fallback = document.getElementById('userAvatarFallback');
+      fallback.innerText = (currentUser.full_name[0] || currentUser.username[0] || 'U').toUpperCase();
+
+      const rawAvatar = String(currentUser.avatar_url || '').trim();
+      const avatarUrl = /^(https?:\/\/|\/|data:image\/(?:png|jpe?g|gif|webp);base64,)/i.test(rawAvatar) ? rawAvatar : '';
+      if (avatarUrl) {
+        img.src = avatarUrl;
+        img.classList.remove('d-none');
+        fallback.classList.add('d-none');
+      } else {
+        img.classList.add('d-none');
+        fallback.classList.remove('d-none');
+      }
+
+      // Live status
+      const sharingBadge = document.getElementById('sharingStatusBadge');
+      if (currentUser.is_sharing) {
+        sharingBadge.className = 'badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 rounded-pill px-2 py-1 small';
+        sharingBadge.innerHTML = '<span class="status-pulse-dot" style="width: 6px; height: 6px;"></span> Sharing Active';
+      } else {
+        sharingBadge.className = 'badge bg-secondary bg-opacity-15 text-muted border rounded-pill px-2 py-1 small';
+        sharingBadge.innerHTML = '<i class="bi bi-pause-circle me-1"></i> Sharing Paused';
+      }
+
+      // Fields in Tab 1
+      document.getElementById('inputFullName').value = currentUser.full_name || '';
+      document.getElementById('inputUsername').value = currentUser.username || '';
+      document.getElementById('inputEmail').value = currentUser.email || '';
+      document.getElementById('inputPhone').value = currentUser.phone || '';
+      document.getElementById('inputBio').value = currentUser.profile?.bio || '';
+      document.getElementById('inputHomeAddress').value = currentUser.profile?.home_address || '';
+
+      // Tab 2 Medical
+      const bg = currentUser.profile?.blood_group || '';
+      document.getElementById('statBloodGroup').innerText = bg || '-';
+      if (bg) selectBloodChip(bg);
+      document.getElementById('inputMedicalNotes').value = currentUser.profile?.medical_notes || '';
+
+      // Tab 3 Privacy
+      document.getElementById('privacyMasterSwitch').checked = Boolean(currentUser.is_sharing);
+      selectPrecisionMode(currentUser.privacy_mode || 'exact');
+    }
+
+    async function handleAvatarSelected(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      showToast('Compressing & Uploading avatar to Cloudinary CDN...', 'info');
+
+      // Compress client-side
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = async () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 600;
+          let w = img.width, h = img.height;
+          if (w > h) {
+            if (w > maxDim) { h *= maxDim / w; w = maxDim; }
+          } else {
+            if (h > maxDim) { w *= maxDim / h; h = maxDim; }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const base64 = canvas.toDataURL('image/jpeg', 0.90);
+
+          try {
+            const formData = new FormData();
+            formData.append('avatar_base64', base64);
+
+            const res = await authFetch('/api/auth/upload-avatar', {
+              method: 'POST',
+              body: formData
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              currentUser.avatar_url = data.avatar_url;
+              renderUserData();
+              showToast(data.message || 'Avatar uploaded to CDN successfully!', 'success');
+            } else {
+              const err = await res.json().catch(() => ({}));
+              showToast('Upload failed: ' + (err.detail || 'Server error'), 'danger');
+            }
+          } catch (err) {
+            showToast('Upload error: ' + err.message, 'danger');
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function savePersonalInfo(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btnSavePersonal');
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+      const payload = {
+        full_name: document.getElementById('inputFullName').value.trim(),
+        phone: document.getElementById('inputPhone').value.trim() || null,
+        bio: document.getElementById('inputBio').value.trim() || null,
+        home_address: document.getElementById('inputHomeAddress').value.trim() || null
+      };
+
+      try {
+        const res = await authFetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          currentUser = await res.json();
+          renderUserData();
+          showToast('Personal details updated successfully!', 'success');
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showToast('Update failed: ' + (err.detail || 'Error'), 'danger');
+        }
+      } catch (err) {
+        showToast('Connection error: ' + err.message, 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+
+    async function saveMedicalInfo(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btnSaveMedical');
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+      const payload = {
+        blood_group: document.getElementById('selectedBloodGroup').value || null,
+        medical_notes: document.getElementById('inputMedicalNotes').value.trim() || null
+      };
+
+      try {
+        const res = await authFetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          currentUser = await res.json();
+          renderUserData();
+          showToast('Emergency Medical Info saved!', 'success');
+        } else {
+          showToast('Failed to save medical info', 'danger');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+
+    async function toggleMasterSharing(isActive) {
+      try {
+        const res = await authFetch('/api/locations/toggle-sharing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            is_sharing: isActive,
+            privacy_mode: currentUser?.privacy_mode || 'exact'
+          })
+        });
+        if (res.ok) {
+          currentUser.is_sharing = isActive;
+          renderUserData();
+          showToast(`Live GPS sharing ${isActive ? 'enabled' : 'paused'}`, 'success');
+        }
+      } catch (err) {
+        showToast('Could not update sharing state: ' + err.message, 'danger');
+      }
+    }
+
+    async function savePrivacySettings() {
+      const mode = document.getElementById('radioExact').checked ? 'exact' : 'blurred';
+      const isSharing = document.getElementById('privacyMasterSwitch').checked;
+
+      try {
+        const res = await authFetch('/api/locations/toggle-sharing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            is_sharing: isSharing,
+            privacy_mode: mode
+          })
+        });
+
+        if (res.ok) {
+          currentUser.privacy_mode = mode;
+          currentUser.is_sharing = isSharing;
+          renderUserData();
+          showToast(`Privacy mode updated to ${mode.toUpperCase()}`, 'success');
+        }
+      } catch (err) {
+        showToast('Privacy update error: ' + err.message, 'danger');
+      }
+    }
+
+    async function handleChangePassword(event) {
+      event.preventDefault();
+      const currentPwd = document.getElementById('currentPassword').value;
+      const newPwd = document.getElementById('newPassword').value;
+      const confirmPwd = document.getElementById('confirmPassword').value;
+
+      if (newPwd !== confirmPwd) {
+        showToast('New password and confirm password do not match!', 'danger');
+        return;
+      }
+
+      const btn = document.getElementById('btnChangePasswordSubmit');
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Updating...';
+
+      try {
+        const res = await authFetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            current_password: currentPwd,
+            new_password: newPwd
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.access_token) {
+            token = data.access_token;
+            localStorage.setItem('token', token);
+          }
+          showToast('Password changed successfully! Keep it confidential.', 'success');
+          document.getElementById('formChangePassword').reset();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showToast(err.detail || 'Could not change password.', 'danger');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+
+    async function loadEmergencyContacts() {
+      const list = document.getElementById('emergencyContactsList');
+      if (!list) return;
+      try {
+        const res = await authFetch('/api/emergency/contacts');
+        if (!res.ok) {
+          list.innerHTML = '<div class="text-danger small py-2">Could not load emergency contacts.</div>';
+          return;
+        }
+        const contacts = await res.json();
+        if (!contacts.length) {
+          list.innerHTML = `
+            <div class="text-center text-muted small py-3">
+              <i class="bi bi-person-plus fs-4 d-block mb-1 opacity-50"></i>
+              No emergency contacts yet. Add someone you trust to receive SOS texts.
+            </div>`;
+          return;
+        }
+        list.innerHTML = contacts.map(c => `
+          <div class="p-2.5 rounded-3 border border-secondary border-opacity-20 bg-body-tertiary d-flex align-items-center justify-content-between gap-2 mb-2">
+            <div class="min-w-0">
+              <div class="fw-bold text-truncate" style="font-size: 13.5px;">${esc(c.name)}</div>
+              <div class="text-muted small text-truncate" style="font-size: 11.5px;">
+                <i class="bi bi-telephone me-1"></i>${esc(c.phone)}
+                <span class="ms-2"><i class="bi bi-person-badge me-1"></i>${esc(c.relationship)}</span>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-outline-danger py-1 px-2 rounded-3" style="font-size: 11px;" onclick="deleteEmergencyContact(${Number(c.id)})" title="Remove contact">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        `).join('');
+      } catch (err) {
+        list.innerHTML = `<div class="text-danger small py-2">Error: ${esc(err.message)}</div>`;
+      }
+    }
+
+    async function addEmergencyContact(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btnAddEmergencyContact');
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Adding...';
+
+      const payload = {
+        name: document.getElementById('contactName').value.trim(),
+        phone: document.getElementById('contactPhone').value.trim(),
+        relationship: document.getElementById('contactRelationship').value.trim(),
+        notify_in_app: document.getElementById('contactNotifyInApp').checked
+      };
+
+      try {
+        const res = await authFetch('/api/emergency/contacts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          document.getElementById('formEmergencyContact').reset();
+          document.getElementById('contactNotifyInApp').checked = true;
+          showToast('Emergency contact added.', 'success');
+          loadEmergencyContacts();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          const detail = Array.isArray(err.detail) ? err.detail.map(d => d.msg).join(', ') : err.detail;
+          showToast(detail || 'Could not add emergency contact.', 'danger');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+
+    async function deleteEmergencyContact(contactId) {
+      if (!confirm('Remove this emergency contact?')) return;
+      try {
+        const res = await authFetch(`/api/emergency/contacts/${contactId}`, { method: 'DELETE' });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          showToast(data.message || 'Emergency contact removed.', 'info');
+          loadEmergencyContacts();
+        } else {
+          showToast(data.detail || 'Could not remove contact.', 'danger');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'danger');
+      }
+    }
+
+    async function loadCircles() {
+      const container = document.getElementById('circlesListContainer');
+      try {
+        const res = await authFetch('/api/groups/');
+        if (!res.ok) return;
+        const groups = await res.json();
+        document.getElementById('statCirclesCount').innerText = groups.length || 0;
+
+        if (!groups || groups.length === 0) {
+          container.innerHTML = `
+            <div class="col-12 text-center text-muted py-4">
+              <i class="bi bi-people fs-2 mb-2 d-block"></i>
+              You haven't joined any family circles yet. Create one or join with an invite code!
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = groups.map(g => `
+          <div class="col-12 col-md-6">
+            <div class="p-3 rounded-4" style="background: var(--card-bg); border: 1px solid var(--card-border);">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="fw-bold fs-6 text-main">${esc(g.name)}</span>
+                <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25 small">
+                  ${g.members ? g.members.length : 1} Members
+                </span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mt-3 pt-2 border-top border-secondary border-opacity-25">
+                <div class="small text-muted">
+                  Invite Code: <strong class="text-main letter-spacing-1">${esc(g.invite_code)}</strong>
+                </div>
+                <button class="btn btn-sm btn-outline-light py-1 px-2 rounded-2" onclick="navigator.clipboard.writeText(${escAttr(g.invite_code)}); showToast('Invite code copied to clipboard!', 'success');" title="Copy Invite Code">
+                  <i class="bi bi-copy"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.warn('Circles load error:', err);
+      }
+    }
+
+    async function loadCloudinaryStatus() {
+      const diagEl = document.getElementById('cloudinaryDiagBox');
+      const badgeEl = document.getElementById('cloudinaryBadgeContainer');
+      try {
+        const res = await fetch('/api/auth/cloudinary-status');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.connected) {
+            badgeEl.innerHTML = `<span class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 rounded-pill px-2 py-1 small"><i class="bi bi-cloud-check-fill me-1"></i>Cloud CDN</span>`;
+            diagEl.innerHTML = `
+              <div class="d-flex align-items-center gap-2 text-success fw-bold mb-1">
+                <i class="bi bi-cloud-check-fill fs-5"></i>
+                <span>Cloudinary CDN Connected (${esc(data.cloud_name)})</span>
+              </div>
+              <div class="small text-muted">High-speed global image delivery is active for all circle avatars.</div>
+            `;
+          } else {
+            diagEl.innerHTML = `
+              <div class="d-flex align-items-center gap-2 text-warning fw-bold mb-1">
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                <span>Cloudinary Not Connected: ${esc(data.message || 'Credentials missing in .env')}</span>
+              </div>
+              <div class="small text-muted">Avatars are stored locally or via base64 fallback.</div>
+            `;
+          }
+        }
+      } catch (e) {
+        console.warn('Cloudinary status check error:', e);
+      }
+    }
+
+    function openCreateCircleModal() {
+      new bootstrap.Modal(document.getElementById('modalCreateCircle')).show();
+    }
+
+    function openJoinCircleModal() {
+      new bootstrap.Modal(document.getElementById('modalJoinCircle')).show();
+    }
+
+    async function submitCreateCircle(e) {
+      e.preventDefault();
+      const name = document.getElementById('inputCircleName').value.trim();
+      try {
+        const res = await authFetch('/api/groups/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name })
+        });
+        if (res.ok) {
+          showToast(`Circle "${name}" created successfully!`, 'success');
+          bootstrap.Modal.getInstance(document.getElementById('modalCreateCircle')).hide();
+          loadCircles();
+        } else {
+          showToast('Failed to create circle', 'danger');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'danger');
+      }
+    }
+
+    async function submitJoinCircle(e) {
+      e.preventDefault();
+      const code = document.getElementById('inputJoinCode').value.trim().toUpperCase();
+      try {
+        const res = await authFetch('/api/groups/join', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invite_code: code })
+        });
+        if (res.ok) {
+          showToast('Joined circle successfully!', 'success');
+          bootstrap.Modal.getInstance(document.getElementById('modalJoinCircle')).hide();
+          loadCircles();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showToast(err.detail || 'Invalid invite code', 'danger');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'danger');
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+
+    // Start
+    loadUserProfile();
+  </script>
+</body>
+</html>

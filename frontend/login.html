@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Sign In • RTF-Location</title>
+  <meta name="description" content="Sign in to RTF-Location to access real-time family location sharing, circle tracking, and emergency SOS alerts.">
+  
+  <!-- BOOTSTRAP 5 & ICONS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- FONTS & STYLES -->
+  <link rel="shortcut icon" href="/favicon.ico.png" type="image/png">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <script src="/static/js/utils.js?v=2.9"></script>
+</head>
+<body class="auth-page">
+
+  <div class="auth-split-wrapper">
+    <!-- LEFT: HERO SHOWCASE -->
+    <section class="auth-hero-section">
+      <div class="auth-hero-overlay"></div>
+      
+      <div class="auth-hero-content">
+        <a href="/" class="auth-hero-brand">
+          <div class="auth-brand-icon">
+            <i class="bi bi-geo-alt-fill"></i>
+          </div>
+          <span class="auth-brand-title">RTF-Location</span>
+        </a>
+
+        <div class="auth-hero-center">
+          <div class="mb-3">
+            <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-35 px-3 py-2 rounded-pill fw-bold" style="font-size: 12.5px;">
+              <i class="bi bi-shield-lock-fill me-1"></i> End-to-End Circle Security
+            </span>
+          </div>
+          <h1>Protect what matters most, <span class="gradient-text">every second.</span></h1>
+          <p>
+            Experience ultra-low latency live GPS coordinates, 1-click emergency SOS signals, instant circle check-ins, and battery telemetry for your entire family.
+          </p>
+
+          <div class="auth-features-list">
+            <div class="auth-feature-chip">
+              <i class="bi bi-radar"></i> Live Satellite Radar
+            </div>
+            <div class="auth-feature-chip">
+              <i class="bi bi-shield-fill-check"></i> 1-Tap Emergency SOS
+            </div>
+            <div class="auth-feature-chip">
+              <i class="bi bi-battery-charging"></i> Battery & Speed Telemetry
+            </div>
+            <div class="auth-feature-chip">
+              <i class="bi bi-cloud-arrow-up-fill"></i> Cloudinary CDN Storage
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-hero-footer">
+          <span>&copy; 2026 RTF-Location Safety Systems. All rights reserved.</span>
+          <div class="d-flex align-items-center gap-3">
+            <span class="d-inline-flex align-items-center gap-1 text-success fw-semibold">
+              <span class="status-pulse-dot" style="width: 7px; height: 7px;"></span> Systems Operational
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: AUTHENTICATION FORM -->
+    <section class="auth-form-section">
+      <div class="auth-card-inner">
+        
+        <!-- Mobile Brand Header -->
+        <div class="text-center d-flex d-md-none flex-column align-items-center mb-3">
+          <div class="d-inline-flex p-3 rounded-4 bg-danger bg-opacity-10 text-danger mb-2">
+            <i class="bi bi-geo-alt-fill fs-2"></i>
+          </div>
+          <h4 class="fw-bold mb-0">RTF-Location</h4>
+          <span class="text-muted small">Real Time Family Location</span>
+        </div>
+
+        <div class="mb-4">
+          <h3 class="fw-bold mb-1">Welcome back</h3>
+          <p class="text-muted small mb-0">Sign in to access your family circles and live tracking radar.</p>
+        </div>
+
+        <!-- Alert Banner -->
+        <div id="authAlert" class="custom-alert custom-alert-danger d-none" role="alert">
+          <i class="bi bi-exclamation-circle-fill fs-5 flex-shrink-0"></i>
+          <span id="authAlertText">Error message</span>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleEmailLogin(event)" autocomplete="on">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted mb-1" for="loginIdentifier">Email or Username</label>
+            <div class="input-group-modern">
+              <i class="bi bi-envelope-fill input-icon-left"></i>
+              <input type="text" id="loginIdentifier" class="form-control-modern" placeholder="e.g. rahul@gmail.com" required autocomplete="username" autofocus>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label small fw-bold text-muted mb-0" for="loginPassword">Password</label>
+              <a href="javascript:void(0)" onclick="showForgotModal()" class="text-primary small text-decoration-none fw-semibold">Forgot?</a>
+            </div>
+            <div class="input-group-modern">
+              <i class="bi bi-lock-fill input-icon-left"></i>
+              <input type="password" id="loginPassword" class="form-control-modern has-action-right" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="input-action-right" onclick="togglePasswordVisibility('loginPassword', this)" title="Show/Hide password">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+              <label class="form-check-label small text-muted" for="rememberMe">Remember me</label>
+            </div>
+            <span class="badge bg-secondary bg-opacity-15 text-muted small fw-normal">
+              <i class="bi bi-shield-check text-success me-1"></i> 256-bit TLS
+            </span>
+          </div>
+
+          <button type="submit" id="btnLoginSubmit" class="btn-gradient">
+            <i class="bi bi-box-arrow-in-right fs-5"></i>
+            <span>Sign In to Live Radar</span>
+          </button>
+        </form>
+
+        <div class="text-center mt-4 pt-2 border-top border-secondary border-opacity-25">
+          <p class="text-muted small mb-0">
+            Don't have an account yet? 
+            <a href="/signup" class="text-primary fw-bold text-decoration-none ms-1">Create Account <i class="bi bi-arrow-right"></i></a>
+          </p>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="app-toast-container" id="toastContainer"></div>
+
+  <script>
+    // Theme setup
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-bs-theme', savedTheme);
+
+    // If already authenticated with valid token, redirect to live map
+    const existingToken = localStorage.getItem('token');
+    if (existingToken) {
+      fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${existingToken}` }
+      }).then(res => {
+        if (res.ok) {
+          window.location.href = '/map';
+        }
+      }).catch(() => {});
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+    }
+
+    function showAlert(msg, isSuccess = false) {
+      const alertEl = document.getElementById('authAlert');
+      const textEl = document.getElementById('authAlertText');
+      textEl.innerHTML = esc(msg);
+      alertEl.classList.remove('d-none', 'custom-alert-danger', 'custom-alert-success');
+      alertEl.classList.add(isSuccess ? 'custom-alert-success' : 'custom-alert-danger');
+    }
+
+    function hideAlert() {
+      document.getElementById('authAlert').classList.add('d-none');
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `app-toast toast-${type}`;
+      const iconClass = type === 'success' ? 'bi-check-circle-fill text-success' : (type === 'danger' ? 'bi-exclamation-triangle-fill text-danger' : 'bi-info-circle-fill text-primary');
+      toast.innerHTML = `<i class="bi ${iconClass} fs-5"></i><span>${esc(msg)}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(15px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    async function handleEmailLogin(event) {
+      event.preventDefault();
+      hideAlert();
+      const identifier = document.getElementById('loginIdentifier').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const submitBtn = document.getElementById('btnLoginSubmit');
+      const originalHTML = submitBtn.innerHTML;
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Authenticating...';
+
+      // Direct Backend Login
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username_or_email: identifier,
+            password: password
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem('token', data.access_token);
+          showToast('Welcome back, ' + (data.user?.full_name || 'User') + '!', 'success');
+          setTimeout(() => { window.location.href = '/map'; }, 500);
+        } else {
+          const err = await res.json().catch(() => ({ detail: 'Invalid credentials' }));
+          showAlert(err.detail || 'Invalid username or password.');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+        }
+      } catch (err) {
+        showAlert('Network connection error: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHTML;
+      }
+    }
+
+    function showForgotModal() {
+      alert("Password Reset: Please reach out to support to reset your password.");
+    }
+  </script>
+</body>
+</html>

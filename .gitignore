@@ -1,0 +1,36 @@
+# Environment & Secrets
+.env
+.env.local
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# SQLite runtime database and temporary files
+rtf_location.db
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+*.sqlite3-shm
+*.sqlite3-wal
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# User uploads runtime (keep folder structure)
+frontend/uploads/*
+!frontend/uploads/.gitkeep

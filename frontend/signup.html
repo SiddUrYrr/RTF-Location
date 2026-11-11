@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Create Account • RTF-Location</title>
+  <meta name="description" content="Register for RTF-Location to create private family circles, track loved ones in real time, and enable 1-tap emergency safety features.">
+  
+  <!-- BOOTSTRAP 5 & ICONS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- FONTS & STYLES -->
+  <link rel="shortcut icon" href="/favicon.ico.png" type="image/png">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <script src="/static/js/utils.js?v=2.9"></script>
+</head>
+<body class="auth-page">
+
+  <div class="auth-split-wrapper">
+    <!-- LEFT: HERO SHOWCASE -->
+    <section class="auth-hero-section">
+      <div class="auth-hero-overlay"></div>
+      
+      <div class="auth-hero-content">
+        <a href="/" class="auth-hero-brand">
+          <div class="auth-brand-icon">
+            <i class="bi bi-geo-alt-fill"></i>
+          </div>
+          <span class="auth-brand-title">RTF-Location</span>
+        </a>
+
+        <div class="auth-hero-center">
+          <div class="mb-3">
+            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-35 px-3 py-2 rounded-pill fw-bold" style="font-size: 12.5px;">
+              <i class="bi bi-person-check-fill me-1"></i> Private Family Circles
+            </span>
+          </div>
+          <h1>Join millions keeping <span class="gradient-text">family safe & close.</span></h1>
+          <p>
+            Create your private circle in seconds. Share real-time GPS locations, configure safe zones, and enjoy absolute peace of mind with 1-click emergency assistance.
+          </p>
+
+          <div class="auth-features-list">
+            <div class="auth-feature-chip">
+              <i class="bi bi-shield-shaded"></i> Secure Account Protection
+            </div>
+            <div class="auth-feature-chip">
+              <i class="bi bi-people-fill"></i> Unlimited Circle Members
+            </div>
+            <div class="auth-feature-chip">
+              <i class="bi bi-heart-pulse-fill"></i> Medical Info Storage
+            </div>
+            <div class="auth-feature-chip">
+              <i class="bi bi-clock-history"></i> 48-Hour Route History
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-hero-footer">
+          <span>&copy; 2026 RTF-Location Safety Systems. All rights reserved.</span>
+          <div class="d-flex align-items-center gap-3">
+            <span class="d-inline-flex align-items-center gap-1 text-success fw-semibold">
+              <i class="bi bi-lock-fill"></i> Private & Encrypted
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: REGISTRATION FORM -->
+    <section class="auth-form-section">
+      <div class="auth-card-inner">
+        
+        <!-- Mobile Brand Header -->
+        <div class="text-center d-flex d-md-none flex-column align-items-center mb-3">
+          <div class="d-inline-flex p-3 rounded-4 bg-danger bg-opacity-10 text-danger mb-2">
+            <i class="bi bi-geo-alt-fill fs-2"></i>
+          </div>
+          <h4 class="fw-bold mb-0">RTF-Location</h4>
+          <span class="text-muted small">Real Time Family Location</span>
+        </div>
+
+        <div class="mb-3">
+          <h3 class="fw-bold mb-1">Create your account</h3>
+          <p class="text-muted small mb-0">Set up your profile to start sharing location with your circle.</p>
+        </div>
+
+        <!-- Alert Banner -->
+        <div id="authAlert" class="custom-alert custom-alert-danger d-none" role="alert">
+          <i class="bi bi-exclamation-circle-fill fs-5 flex-shrink-0"></i>
+          <span id="authAlertText">Error message</span>
+        </div>
+
+        <!-- Signup Form -->
+        <form id="signupForm" onsubmit="handleSignupSubmit(event)" autocomplete="on">
+          <div class="row g-2 mb-2">
+            <div class="col-12 col-sm-6">
+              <label class="form-label small fw-bold text-muted mb-1" for="regFullName">Full Name</label>
+              <div class="input-group-modern mb-2">
+                <i class="bi bi-person-fill input-icon-left"></i>
+                <input type="text" id="regFullName" class="form-control-modern" placeholder="e.g. Rahul Sharma" required autocomplete="name">
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label class="form-label small fw-bold text-muted mb-1" for="regUsername">Username</label>
+              <div class="input-group-modern mb-2">
+                <i class="bi bi-at input-icon-left"></i>
+                <input type="text" id="regUsername" class="form-control-modern" placeholder="rahul_s" required minlength="3" maxlength="30" autocomplete="username">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-muted mb-1" for="regEmail">Original Email Address</label>
+            <div class="input-group-modern mb-1">
+              <i class="bi bi-envelope-check-fill input-icon-left"></i>
+              <input type="email" id="regEmail" class="form-control-modern" placeholder="name@domain.com" required autocomplete="email" oninput="autoSuggestUsername(this.value)">
+            </div>
+            <div class="text-muted small d-flex align-items-center gap-1 mb-2" style="font-size: 11.5px;">
+              <i class="bi bi-info-circle text-primary"></i> 
+              <span>Authentic email required. Fake or temporary domains are automatically blocked.</span>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-muted mb-1" for="regPhone">Phone (Optional for SOS)</label>
+            <div class="input-group-modern mb-2">
+              <i class="bi bi-telephone-fill input-icon-left"></i>
+              <input type="tel" id="regPhone" class="form-control-modern" placeholder="+91 9876543210" autocomplete="tel">
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-muted mb-1" for="regPassword">Password</label>
+            <div class="input-group-modern mb-2">
+              <i class="bi bi-shield-lock-fill input-icon-left"></i>
+              <input type="password" id="regPassword" class="form-control-modern has-action-right" placeholder="Min 6 characters" required minlength="6" autocomplete="new-password" oninput="updatePasswordStrength(this.value)">
+              <button type="button" class="input-action-right" onclick="togglePasswordVisibility('regPassword', this)" title="Show/Hide password">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+
+            <!-- Password Strength Bar -->
+            <div class="pwd-strength-container" id="pwdStrengthBox">
+              <div class="pwd-bars-wrapper">
+                <div class="pwd-bar-segment" id="pwdBar1"></div>
+                <div class="pwd-bar-segment" id="pwdBar2"></div>
+                <div class="pwd-bar-segment" id="pwdBar3"></div>
+                <div class="pwd-bar-segment" id="pwdBar4"></div>
+              </div>
+              <div class="pwd-strength-label">
+                <span id="pwdStrengthText">Password Strength: None</span>
+                <span id="pwdCharCount">0 / 6 min</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="termsCheck" required checked>
+            <label class="form-check-label small text-muted" for="termsCheck">
+              I agree to the <a href="javascript:void(0)" class="text-primary text-decoration-none">Terms of Service</a> & <a href="javascript:void(0)" class="text-primary text-decoration-none">Privacy Policy</a>
+            </label>
+          </div>
+
+          <button type="submit" id="btnSignupSubmit" class="btn-gradient">
+            <i class="bi bi-person-plus-fill fs-5"></i>
+            <span>Create Verified Family Account</span>
+          </button>
+        </form>
+
+        <div class="text-center mt-4 pt-2 border-top border-secondary border-opacity-25">
+          <p class="text-muted small mb-0">
+            Already have an account? 
+            <a href="/login" class="text-primary fw-bold text-decoration-none ms-1">Sign In <i class="bi bi-arrow-right"></i></a>
+          </p>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="app-toast-container" id="toastContainer"></div>
+
+  <script>
+    // Theme setup
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-bs-theme', savedTheme);
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+    }
+
+    function autoSuggestUsername(email) {
+      const userField = document.getElementById('regUsername');
+      if (!userField.value || userField.dataset.autofilled === 'true') {
+        const candidate = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').toLowerCase().slice(0, 25);
+        if (candidate) {
+          userField.value = candidate;
+          userField.dataset.autofilled = 'true';
+        }
+      }
+    }
+
+    document.getElementById('regUsername').addEventListener('input', function() {
+      this.dataset.autofilled = 'false';
+    });
+
+    function updatePasswordStrength(val) {
+      const bar1 = document.getElementById('pwdBar1');
+      const bar2 = document.getElementById('pwdBar2');
+      const bar3 = document.getElementById('pwdBar3');
+      const bar4 = document.getElementById('pwdBar4');
+      const textEl = document.getElementById('pwdStrengthText');
+      const countEl = document.getElementById('pwdCharCount');
+
+      countEl.innerText = `${val.length} / 6 min`;
+
+      let score = 0;
+      if (val.length >= 6) score++;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      // Reset
+      [bar1, bar2, bar3, bar4].forEach(b => b.style.backgroundColor = 'rgba(255,255,255,0.1)');
+
+      if (val.length === 0) {
+        textEl.innerText = 'Password Strength: None';
+        textEl.style.color = 'var(--text-muted)';
+        return;
+      }
+
+      if (score <= 1) {
+        bar1.style.backgroundColor = '#f43f5e';
+        textEl.innerText = 'Password Strength: Weak';
+        textEl.style.color = '#f43f5e';
+      } else if (score === 2) {
+        bar1.style.backgroundColor = '#f59e0b';
+        bar2.style.backgroundColor = '#f59e0b';
+        textEl.innerText = 'Password Strength: Fair';
+        textEl.style.color = '#f59e0b';
+      } else if (score === 3) {
+        bar1.style.backgroundColor = '#3b82f6';
+        bar2.style.backgroundColor = '#3b82f6';
+        bar3.style.backgroundColor = '#3b82f6';
+        textEl.innerText = 'Password Strength: Strong';
+        textEl.style.color = '#3b82f6';
+      } else {
+        bar1.style.backgroundColor = '#10b981';
+        bar2.style.backgroundColor = '#10b981';
+        bar3.style.backgroundColor = '#10b981';
+        bar4.style.backgroundColor = '#10b981';
+        textEl.innerText = 'Password Strength: Excellent';
+        textEl.style.color = '#10b981';
+      }
+    }
+
+    function showAlert(msg, isSuccess = false) {
+      const alertEl = document.getElementById('authAlert');
+      const textEl = document.getElementById('authAlertText');
+      textEl.innerHTML = esc(msg);
+      alertEl.classList.remove('d-none', 'custom-alert-danger', 'custom-alert-success');
+      alertEl.classList.add(isSuccess ? 'custom-alert-success' : 'custom-alert-danger');
+    }
+
+    function hideAlert() {
+      document.getElementById('authAlert').classList.add('d-none');
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `app-toast toast-${type}`;
+      const iconClass = type === 'success' ? 'bi-check-circle-fill text-success' : (type === 'danger' ? 'bi-exclamation-triangle-fill text-danger' : 'bi-info-circle-fill text-primary');
+      toast.innerHTML = `<i class="bi ${iconClass} fs-5"></i><span>${esc(msg)}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(15px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    async function handleSignupSubmit(event) {
+      event.preventDefault();
+      hideAlert();
+
+      const fullName = document.getElementById('regFullName').value.trim();
+      const username = document.getElementById('regUsername').value.trim().toLowerCase();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const phone = document.getElementById('regPhone').value.trim() || null;
+      const password = document.getElementById('regPassword').value;
+      const submitBtn = document.getElementById('btnSignupSubmit');
+      const originalHTML = submitBtn.innerHTML;
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Creating Account...';
+
+      // Direct Backend Signup
+      try {
+        const payload = {
+          full_name: fullName,
+          username: username,
+          email: email,
+          phone: phone,
+          password: password
+        };
+
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem('token', data.access_token);
+          showToast('Welcome to RTF-Location! Redirecting to map...', 'success');
+          setTimeout(() => {
+            window.location.href = '/map';
+          }, 600);
+        } else {
+          const err = await res.json().catch(() => ({ detail: 'Registration failed' }));
+          showAlert(err.detail || 'Could not complete registration. Check inputs.');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+        }
+      } catch (err) {
+        showAlert('Registration network error: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHTML;
+      }
+    }
+
+  </script>
+</body>
+</html>
